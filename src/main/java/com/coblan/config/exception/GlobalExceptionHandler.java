@@ -115,9 +115,10 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResponseEntity<Map<String, String>> handleEntityNotFoundException(EntityNotFoundException ex) {
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "El recurso solicitado no fue encontrado.");
+        errorResponse.put("error", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+
 
     /**
      * Maneja violaciones de integridad de datos en la base de datos.

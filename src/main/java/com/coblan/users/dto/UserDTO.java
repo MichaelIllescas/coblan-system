@@ -22,10 +22,10 @@ public class UserDTO {
     private String phone;
     private String address;
     private String email;
-    private boolean enabled;              // ← más claro y directo
+    private Boolean enabled;
     private Role role;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")   // ← formato ISO claro
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate registrationDate;
 
 
