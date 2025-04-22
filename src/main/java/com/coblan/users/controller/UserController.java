@@ -1,10 +1,15 @@
 package com.coblan.users.controller;
 
+import com.coblan.config.exception.ErrorResponseDTO;
 import com.coblan.users.dto.CreateUserRequest;
 import com.coblan.users.dto.UserDTO;
 import com.coblan.users.usecase.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
 @Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios del sistema")
-
 public class UserController {
 
     private final GetAllUsersUseCase getAllUsersUseCase;
@@ -31,96 +34,88 @@ public class UserController {
     private final UpdateUserUseCase updateUserUseCase;
     private final ToggleStatusUserCase toggleStatusUserUseCase;
 
-    @Operation(
-            summary = "Obtener todos los usuarios",
-            description = "Devuelve una lista con todos los usuarios registrados. Requiere rol ADMIN."
-    )
+    @Operation(summary = "Obtener todos los usuarios")
     @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida correctamente")
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/getAll")
+    @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = getAllUsersUseCase.execute();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(getAllUsersUseCase.execute());
     }
 
-    @Operation(
-            summary = "Obtener un usuario por ID",
-            description = "Devuelve la información de un usuario específico por su ID. Requiere rol ADMIN."
-    )
+    @Operation(summary = "Obtener un usuario por ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/getUser/{user_id}")
+    @GetMapping("/{user_id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long user_id) {
-        UserDTO user = getUserByIdUseCase.execute(user_id);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(getUserByIdUseCase.execute(user_id));
     }
 
-    @Operation(
-            summary = "Registrar un nuevo usuario",
-            description = "Crea un nuevo usuario con los datos proporcionados. Requiere rol ADMIN."
-    )
+    @Operation(summary = "Registrar un nuevo usuario")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Usuario registrado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
-            @ApiResponse(responseCode = "401", description = "No autorizado")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "No autorizado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@RequestBody @Valid CreateUserRequest request) {
+    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody CreateUserRequest request) {
         UserDTO createdUser = registerUserUseCase.execute(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @Operation(
-            summary = "Eliminar un usuario",
-            description = "Elimina un usuario del sistema por su ID. Requiere rol ADMIN."
-    )
+    @Operation(summary = "Eliminar un usuario")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuario eliminado correctamente"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         deleteUserUseCase.execute(id);
-        return ResponseEntity.ok("Usuario eliminado correctamente");
+        return ResponseEntity.ok(Map.of("message", "Usuario eliminado correctamente"));
     }
 
-    @Operation(
-            summary = "Actualizar un usuario",
-            description = "Modifica los datos de un usuario existente. Solo los campos no nulos serán actualizados. Requiere rol ADMIN."
-    )
+    @Operation(summary = "Actualizar un usuario")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/update")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserDTO userDTO) {
+    @PutMapping
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(updateUserUseCase.execute(userDTO));
     }
 
-    @Operation(
-            summary = "Actualizar el estado de un usuario (habilitar/deshabilitar)",
-            description = "Modifica el estado de un usuario existente. Si se encuentra habilitado, pasa a estar inhabilitado y bisceversa. Requiere rol ADMIN."
-    )
+    @Operation(summary = "Cambiar estado (activar/desactivar) de un usuario")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuario actualizado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            @ApiResponse(responseCode = "200", description = "Estado actualizado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/toggleStatus/{id}")
-    public ResponseEntity<?> togglestatsus(@PathVariable Long id ) {
+    @PutMapping("/toggle-status/{id}")
+    public ResponseEntity<Map<String, String>> toggleStatus(@PathVariable Long id) {
         toggleStatusUserUseCase.execute(id);
-        return ResponseEntity.ok("El estado ha sido cambiado correctamente");
+        return ResponseEntity.ok(Map.of("message", "El estado ha sido cambiado correctamente"));
     }
-
-
-
-
 }

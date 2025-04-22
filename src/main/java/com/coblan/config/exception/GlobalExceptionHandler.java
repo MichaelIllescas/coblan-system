@@ -3,6 +3,8 @@ package com.coblan.config.exception;
 import com.coblan.auth.exceptions.DisabledUserException;
 import com.coblan.auth.exceptions.InvalidCredentialsException;
 import com.coblan.customers.exception.ClientException;
+import com.coblan.customers.exception.CustomerInUseException;
+import com.coblan.customers.exception.CustomerNotFoundException;
 import com.coblan.users.exception.UserRegisterException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
@@ -170,6 +172,35 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ClientException.class)
     @ResponseBody
     public ResponseEntity<Map<String, String>> handleClientException(ClientException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        return new ResponseEntity<>(errorResponse, headers, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * Maneja errores relacionados con clientes.
+     */
+    @ExceptionHandler(CustomerInUseException.class)
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> handleClientException(CustomerInUseException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        return new ResponseEntity<>(errorResponse, headers, HttpStatus.UNAUTHORIZED);
+    }
+    /**
+     * Maneja errores relacionados con clientes.
+     */
+    @ExceptionHandler(CustomerNotFoundException.class)
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> handleClientException(CustomerNotFoundException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", ex.getMessage());
 
