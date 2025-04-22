@@ -1,11 +1,13 @@
 package com.coblan.employees.controller;
 
-
+import com.coblan.config.exception.ErrorResponseDTO;
 import com.coblan.employees.dto.EmployeeRequestDTO;
 import com.coblan.employees.dto.EmployeeResponseDTO;
 import com.coblan.employees.usecase.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,6 +32,9 @@ public class EmployeeController {
     @PostMapping("/create")
     @Operation(summary = "Registrar un nuevo empleado")
     @ApiResponse(responseCode = "200", description = "Empleado creado exitosamente")
+    @ApiResponse(responseCode = "400", description = "Error de validación",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<EmployeeResponseDTO> createEmployee(
             @Valid @RequestBody EmployeeRequestDTO requestDTO) {
         return ResponseEntity.ok(createEmployeeUseCase.execute(requestDTO));
@@ -47,6 +52,9 @@ public class EmployeeController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener un empleado por ID")
     @ApiResponse(responseCode = "200", description = "Empleado obtenido exitosamente")
+    @ApiResponse(responseCode = "404", description = "Empleado no encontrado",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(
             @Parameter(description = "ID del empleado") @PathVariable Long id) {
         return ResponseEntity.ok(getEmployeeByIdUseCase.execute(id));
@@ -55,6 +63,12 @@ public class EmployeeController {
     @PutMapping("/update/{id}")
     @Operation(summary = "Actualizar un empleado")
     @ApiResponse(responseCode = "200", description = "Empleado actualizado exitosamente")
+    @ApiResponse(responseCode = "400", description = "Error de validación",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "404", description = "Empleado no encontrado",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @Parameter(description = "ID del empleado a actualizar") @PathVariable Long id,
             @Valid @RequestBody EmployeeRequestDTO requestDTO) {
@@ -64,6 +78,9 @@ public class EmployeeController {
     @PatchMapping("/toggle-status/{id}")
     @Operation(summary = "Activar o desactivar un empleado")
     @ApiResponse(responseCode = "204", description = "Estado del empleado actualizado correctamente")
+    @ApiResponse(responseCode = "404", description = "Empleado no encontrado",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<Void> toggleEmployeeStatus(
             @Parameter(description = "ID del empleado") @PathVariable Long id) {
         toggleEmployeeStatusUseCase.execute(id);
