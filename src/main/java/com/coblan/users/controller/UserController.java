@@ -5,6 +5,7 @@ import com.coblan.users.dto.UserDTO;
 import com.coblan.users.usecase.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,8 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
+@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios del sistema")
+
 public class UserController {
 
     private final GetAllUsersUseCase getAllUsersUseCase;

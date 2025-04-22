@@ -13,6 +13,7 @@ import com.coblan.auth.service.CookieService;
 import com.coblan.users.dto.UserDTO;
 import com.coblan.users.service.UserMapper;
 import com.coblan.users.usecase.GetAuthenticatedUserUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -41,6 +42,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Atenticación", description = "Operaciones relacionadas con la autenticación en el sistema")
+
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
