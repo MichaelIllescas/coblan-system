@@ -2,13 +2,9 @@ package com.coblan.services.mapper;
 
 
 import com.coblan.services.domain.Service;
-import com.coblan.services.domain.WorkHour;
 import com.coblan.services.dto.ServiceRequestDTO;
 import com.coblan.services.dto.ServiceResponseDTO;
-import com.coblan.services.dto.WorkHourResponseDTO;
 
-import java.util.List;
-import java.util.stream.Collectors;
 public class ServiceMapper {
 
     public static Service toEntity(ServiceRequestDTO dto) {

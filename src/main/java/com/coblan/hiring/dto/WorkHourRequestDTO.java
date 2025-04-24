@@ -1,6 +1,6 @@
-package com.coblan.services.dto;
+package com.coblan.hiring.dto;
 
-import com.coblan.services.domain.WorkHourStatus;
+import com.coblan.hiring.domain.WorkHourStatus;
 
 public record WorkHourRequestDTO(
         double price,
