@@ -6,6 +6,7 @@ import com.coblan.hiring.dto.ConfirmWorkHourRequestDTO;
 import com.coblan.hiring.dto.WorkHourResponseDTO;
 import com.coblan.hiring.usecase.AddExtraWorkHourUseCase;
 import com.coblan.hiring.usecase.ConfirmWorkHourUseCase;
+import com.coblan.hiring.usecase.GetWokedHoursByEmployeeIdAndMonthAndYear;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/work-hours")
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class WorkHourController {
 
     private final ConfirmWorkHourUseCase confirmWorkHourUseCase;
     private final AddExtraWorkHourUseCase addExtraWorkHourUseCase;
+    private final GetWokedHoursByEmployeeIdAndMonthAndYear getWokedHoursByEmployeeIdAndMonthAndYear;
 
     @Operation(summary = "Confirmar una hora trabajada")
     @ApiResponse(responseCode = "200", description = "Hora confirmada correctamente")
@@ -51,6 +55,17 @@ public class WorkHourController {
 
         WorkHourResponseDTO response = addExtraWorkHourUseCase.execute(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/hours-worked/{employeeId}")
+    @Operation(summary = "Obtener las horas mensaules laborables asignadas a un empleado a partir de su id")
+
+    public ResponseEntity<List<WorkHourResponseDTO>> getHoursWordkedByEmployee(@PathVariable Long employeeId,
+                                                                              @RequestParam int month,
+                                                                              @RequestParam int year){
+    return ResponseEntity.ok(getWokedHoursByEmployeeIdAndMonthAndYear.execute( employeeId, month, year));
+
+
     }
 
 }

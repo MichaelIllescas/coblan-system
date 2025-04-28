@@ -1,4 +1,4 @@
-package com.coblan.hiring.service;
+package com.coblan.hiring.impl;
 
 
 import com.coblan.employees.domain.Employee;
@@ -15,8 +15,6 @@ import com.coblan.hiring.usecase.AddExtraWorkHourUseCase;
 import com.coblan.hiring.usecase.WorkHourValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

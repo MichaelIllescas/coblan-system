@@ -1,11 +1,10 @@
-package com.coblan.hiring.service;
+package com.coblan.hiring.impl;
 
 import com.coblan.customers.domain.Customer;
 import com.coblan.customers.repository.CustomerRepository;
 import com.coblan.employees.domain.Employee;
 import com.coblan.employees.repository.EmployeeRepository;
 import com.coblan.hiring.domain.Hiring;
-import com.coblan.hiring.domain.HiringStatus;
 import com.coblan.hiring.domain.WorkHour;
 import com.coblan.hiring.dto.HiringRequestDTO;
 import com.coblan.hiring.dto.HiringResponseDTO;
@@ -20,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor

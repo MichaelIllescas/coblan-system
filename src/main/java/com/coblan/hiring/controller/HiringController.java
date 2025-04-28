@@ -32,6 +32,7 @@ public class HiringController {
     private final GetHiringsByStatusUseCase getHiringsByStatusUseCase;
     private final CancelHiringUseCase cancelHiringUseCase;
     private final GetWorkHoursByHiringUseCase getWorkHoursByHiringUseCase;
+    private final GetHiringByIdUseCase getHiringByIdUseCase;
 
 
 
@@ -117,5 +118,10 @@ public class HiringController {
     }
 
 
+    @GetMapping("/{hiringId}")
+    @Operation(summary = "Obtener los detalles de una contratación a partir de su id")
+    public ResponseEntity <HiringResponseDTO> getHirignByID(@PathVariable Long hiringId){
+        return ResponseEntity.ok(getHiringByIdUseCase.execute(hiringId));
+    }
 
 }

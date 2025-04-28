@@ -1,4 +1,4 @@
-package com.coblan.hiring.service;
+package com.coblan.hiring.impl;
 
 
 import com.coblan.hiring.dto.WorkHourResponseDTO;
