@@ -5,14 +5,7 @@ const useCustomerUpdate = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /**
-   * Lógica completa de actualización con control externo
-   * @param {Object} params
-   * @param {number} params.id - ID del cliente
-   * @param {Object} params.updatedData - Datos nuevos
-   * @param {Function} params.onSuccess - Acción extra (ej: refetch)
-   * @param {Function} params.onClose - Cierra el modal
-   */
+
   const handleUpdate = async ({ id, updatedData, onSuccess, onClose }) => {
     setLoading(true);
     setError(null);
