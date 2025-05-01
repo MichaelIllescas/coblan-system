@@ -42,6 +42,9 @@ function validateUserForm(values) {
     } else if (values.password !== values.repeatPassword) {
         errors.repeatPassword = 'Las contraseñas no coinciden.';
     }
+    if (!values.role.trim()) {
+        errors.role = 'El rol es obligarorio.';
+    } 
 
     return errors;
 }
