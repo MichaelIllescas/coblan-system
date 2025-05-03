@@ -27,17 +27,7 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
             throw new IllegalArgumentException("Ya existe un usuario registrado con el email " + request.getEmail());
         }
 
-        User newUser = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .documentNumber(request.getDocumentNumber())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)        // se asigna por defecto
-                .enabled(true)
-                .build();
+        User newUser = userMapper.toUserCreate(request);
 
         userRepository.save(newUser);
 

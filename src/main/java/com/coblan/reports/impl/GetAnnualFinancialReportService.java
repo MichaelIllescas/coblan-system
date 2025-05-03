@@ -5,7 +5,7 @@ import com.coblan.hiring.domain.Hiring;
 import com.coblan.hiring.domain.WorkHour;
 import com.coblan.hiring.repository.HiringRepository;
 import com.coblan.hiring.repository.WorkHourRepository;
-import com.coblan.reports.dto.FinancialReportDTO;
+import com.coblan.reports.dto.AnnualProfitResponseDTO;
 import com.coblan.reports.usecase.GetAnnualFinancialReportUseCase;
 import com.coblan.salaryPayments.repository.SalaryPaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,37 +27,33 @@ public class GetAnnualFinancialReportService implements GetAnnualFinancialReport
     private final SalaryPaymentRepository salaryPaymentRepository;
 
     @Override
-    public FinancialReportDTO execute(int year) {
+    public AnnualProfitResponseDTO execute(int year) {
+        Map<String, Double> monthlyProfits = new LinkedHashMap<>();
 
-        // 1. Buscar contrataciones activas del año
-        List<Hiring> activeHirings = hiringRepository.findActiveHiringsByYear(year);
+        for (int month = 1; month <= 12; month++) {
+            // Ingresos
+            BigDecimal activeIncome = hiringRepository.findActiveHiringsByYearAndMonth(year, month).stream()
+                    .map(h -> BigDecimal.valueOf(h.getServicePriceAtHiring()))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal activeIncome = activeHirings.stream()
-                .map(hiring -> BigDecimal.valueOf(hiring.getServicePriceAtHiring()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal cancelledIncome = workHourRepository.findConfirmedHoursOfCancelledHiringsByYearAndMonth(year, month).stream()
+                    .map(this::calculateIncomePerHour)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 2. Buscar horas confirmadas de contrataciones canceladas del año
-        List<WorkHour> confirmedCancelledHours = workHourRepository.findConfirmedHoursOfCancelledHiringsByYear(year);
+            BigDecimal income = activeIncome.add(cancelledIncome);
 
-        BigDecimal cancelledIncome = confirmedCancelledHours.stream()
-                .map(this::calculateIncomePerHour)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            // Egresos y salarios
+            BigDecimal expenses = expenseRepository.sumExpensesByYearAndMonth(year, month).orElse(BigDecimal.ZERO);
+            BigDecimal salaries = salaryPaymentRepository.sumSalariesByYearAndMonth(year, month).orElse(BigDecimal.ZERO);
 
-        // 3. Ingreso total
-        BigDecimal totalIncome = activeIncome.add(cancelledIncome);
+            // Ganancia = ingresos - egresos - salarios
+            BigDecimal profit = income.subtract(expenses.add(salaries));
 
-        // 4. Gastos
-        BigDecimal totalExpenses = expenseRepository.sumExpensesByYear(year)
-                .orElse(BigDecimal.ZERO);
+            String monthName = Month.of(month).getDisplayName(TextStyle.FULL, new Locale("es"));
+            monthlyProfits.put(capitalize(monthName), profit.setScale(2, RoundingMode.HALF_UP).doubleValue());
+        }
 
-        // 5. Salarios
-        BigDecimal totalSalaries = salaryPaymentRepository.sumSalariesByYear(year)
-                .orElse(BigDecimal.ZERO);
-
-        // 6. Balance
-        BigDecimal balance = totalIncome.subtract(totalExpenses.add(totalSalaries));
-
-        return new FinancialReportDTO(totalIncome, totalExpenses, totalSalaries, balance);
+        return new AnnualProfitResponseDTO(monthlyProfits);
     }
 
     private BigDecimal calculateIncomePerHour(WorkHour workHour) {
@@ -63,14 +61,15 @@ public class GetAnnualFinancialReportService implements GetAnnualFinancialReport
         BigDecimal monthlyAmount = BigDecimal.valueOf(hiring.getServicePriceAtHiring());
         Integer standardHours = hiring.getService().getMonthlyHours();
 
-        if (standardHours == null || standardHours == 0) {
-            return BigDecimal.ZERO;
-        }
+        if (standardHours == null || standardHours == 0) return BigDecimal.ZERO;
 
         BigDecimal valuePerHour = monthlyAmount.divide(BigDecimal.valueOf(standardHours), 2, RoundingMode.HALF_UP);
-
         BigDecimal hoursWorked = BigDecimal.valueOf(workHour.getDuration()).divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
 
         return valuePerHour.multiply(hoursWorked);
+    }
+
+    private String capitalize(String input) {
+        return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 }

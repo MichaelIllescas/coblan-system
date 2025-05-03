@@ -24,5 +24,12 @@ public interface HiringRepository  extends JpaRepository<Hiring, Long> {
 
     @Query("SELECT h FROM Hiring h WHERE YEAR(h.startDate) = :year AND h.status = 'ACTIVE'")
     List<Hiring> findActiveHiringsByYear(@Param("year") int year);
+    @Query("""
+    SELECT h FROM Hiring h
+    WHERE YEAR(h.startDate) = :year AND MONTH(h.startDate) = :month
+    AND h.cancellationdate IS NULL
+    """)
+    List<Hiring> findActiveHiringsByYearAndMonth(@Param("year") int year, @Param("month") int month);
+
 
 }

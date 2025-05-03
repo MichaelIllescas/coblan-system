@@ -1,5 +1,6 @@
 package com.coblan.reports.controller;
 
+import com.coblan.reports.dto.AnnualProfitResponseDTO;
 import com.coblan.reports.dto.FinancialReportDTO;
 import com.coblan.reports.dto.HiringReportDTO;
 import com.coblan.reports.usecase.GetAnnualFinancialReportUseCase;
@@ -56,10 +57,10 @@ public class ReportsController {
 
     @GetMapping("/annual")
     @Operation(summary = "Genera el reporte financiero anual")
-    public ResponseEntity<FinancialReportDTO> getAnnualReport(
+    public ResponseEntity<AnnualProfitResponseDTO> getAnnualReport(
             @RequestParam int year) {
 
-        FinancialReportDTO report = getAnnualFinancialReportUseCase.execute(year);
+        AnnualProfitResponseDTO report = getAnnualFinancialReportUseCase.execute(year);
         return ResponseEntity.ok(report);
     }
 }

@@ -29,5 +29,7 @@ public record EmployeeRequestDTO(
         String cuit,
 
         @Size(max = 100, message = "La dirección no debe tener más de 100 caracteres")
-        String address
+        String address,
+
+        Boolean active
 ) {}

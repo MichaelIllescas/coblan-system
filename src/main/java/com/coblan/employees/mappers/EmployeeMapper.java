@@ -17,7 +17,8 @@ public class EmployeeMapper {
                 .phone(dto.phone())
                 .cuit(dto.cuit())
                 .address(dto.address())
-                .active(true) // por defecto al crear
+                .active(true)
+
                 .build();
     }
 
@@ -45,6 +46,7 @@ public class EmployeeMapper {
         employee.setPhone(dto.phone());
         employee.setCuit(dto.cuit());
         employee.setAddress(dto.address());
-        // el estado "active" no se toca en una actualización general
+        employee.setActive((dto.active() != null ? dto.active() : true));
+
     }
 }

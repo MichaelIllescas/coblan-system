@@ -40,5 +40,9 @@ public class Customer {
     @Email(message = "El correo electrónico debe ser válido")
     private String email;
 
+    @NotBlank(message = "El la dirección  es obligatoria")
+    private String address;
+
+
     private boolean active;
 }

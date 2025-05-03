@@ -25,7 +25,7 @@ public class GetMonthlyHiringsReportUseCaseImpl implements GetMonthlyHiringsRepo
         return hirings.stream().map(h -> new HiringReportDTO(
                 h.getId(),
                 h.getCustomer().getFirstName() +" "+ h.getCustomer().getLastName(),
-                h.getService().getName(),
+                h.getService().getName() + " - " + h.getService().getMonthlyHours() + " Horas",
                 h.getEmployee().getFirstName() +" "+ h.getEmployee().getLastName(),
                 h.getStartDate(),
                 h.getCancellationdate(),

@@ -24,5 +24,6 @@ public class ToggleStatusUserCaseImpl implements ToggleStatusUserCase {
         }else {
             user.setEnabled(true);
         }
+        userRepository.save(user);
     }
 }

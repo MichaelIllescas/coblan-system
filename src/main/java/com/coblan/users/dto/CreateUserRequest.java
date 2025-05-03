@@ -1,6 +1,7 @@
 package com.coblan.users.dto;
 
 
+import com.coblan.users.domain.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -38,4 +39,7 @@ public class CreateUserRequest {
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
+
+    private Role role;
+
 }

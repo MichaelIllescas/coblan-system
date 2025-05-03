@@ -28,6 +28,9 @@ public record CustomerRequestDTO(
         @Email(message = "El correo electrónico debe ser válido")
         String email,
 
+        @NotBlank(message = "La direccion es bligatoria")
+        String address,
+
         boolean active
 
 ) {}

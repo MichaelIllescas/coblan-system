@@ -7,5 +7,6 @@ public record CustomerResponseDTO(
         String documentNumber,
         String phone,
         String email,
+        String address,
         boolean active
 ) {}

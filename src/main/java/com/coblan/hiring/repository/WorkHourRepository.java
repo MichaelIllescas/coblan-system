@@ -41,4 +41,18 @@ public interface WorkHourRepository extends JpaRepository<WorkHour, Long> {
     @Query("SELECT w FROM WorkHour w WHERE YEAR(w.date) = :year AND w.hiring.status = 'CANCELLED' AND w.status = 'CONFIRMED'")
     List<WorkHour> findConfirmedHoursOfCancelledHiringsByYear(@Param("year") int year);
 
+
+    @Query("SELECT w FROM WorkHour w WHERE MONTH(w.date) = :month AND YEAR(w.date) = :year AND w.status = 'PENDING'")
+    List<WorkHour> findByMonthAndYearAndStatusPending(int month, int year);
+
+    @Query("SELECT w FROM WorkHour w WHERE w.date = :date AND w.status = 'PENDING'")
+    List<WorkHour> findByDateAndStatusPending(LocalDate date);
+    @Query("""
+    SELECT wh FROM WorkHour wh
+    WHERE wh.status = 'CONFIRMED'
+    AND wh.hiring.cancellationdate IS NOT NULL
+    AND YEAR(wh.date) = :year AND MONTH(wh.date) = :month
+    """)
+    List<WorkHour> findConfirmedHoursOfCancelledHiringsByYearAndMonth(@Param("year") int year, @Param("month") int month);
+
 }

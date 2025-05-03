@@ -16,7 +16,7 @@ import java.util.Optional;
  * Los métodos permiten realizar operaciones como guardar, buscar, actualizar y eliminar usuarios.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface    UserRepository extends JpaRepository<User, Long> {
 
     /**
      * Busca un usuario en la base de datos por su correo electrónico.

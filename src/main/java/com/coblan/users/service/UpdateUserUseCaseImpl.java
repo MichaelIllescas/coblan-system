@@ -20,14 +20,28 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
     @Override
     public UserDTO execute(UserDTO userDTO) {
         User user = userRepository.findById(userDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("El usuario que estas intentando actualizar, no fue encontrado en el sistema"));
+                .orElseThrow(() -> new EntityNotFoundException("El usuario que estás intentando actualizar no fue encontrado en el sistema."));
+
+        // Verificar si otro usuario ya tiene el mismo email
+        userRepository.findByEmail(userDTO.getEmail()).ifPresent(existingUser -> {
+            if (!existingUser.getId().equals(user.getId())) {
+                throw new RuntimeException("Ya hay un usuario registrado con el email: " + userDTO.getEmail());
+            }
+        });
+
+        // Verificar si otro usuario ya tiene el mismo documento
+        userRepository.findByDocumentNumber(userDTO.getDocumentNumber()).ifPresent(existingUser -> {
+            if (!existingUser.getId().equals(user.getId())) {
+                throw new RuntimeException("Ya hay un usuario registrado con el documento: " + userDTO.getDocumentNumber());
+            }
+        });
 
         mergeUser(userDTO, user);
 
         return userMapper.toDTO(userRepository.save(user));
     }
 
-     private void mergeUser(UserDTO dto, User user) {
+    private void mergeUser(UserDTO dto, User user) {
         if (dto.getFirstName() != null) user.setFirstName(dto.getFirstName());
         if (dto.getLastName() != null) user.setLastName(dto.getLastName());
         if (dto.getDocumentNumber() != null) user.setDocumentNumber(dto.getDocumentNumber());

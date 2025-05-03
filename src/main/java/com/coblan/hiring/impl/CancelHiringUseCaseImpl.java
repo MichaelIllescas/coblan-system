@@ -1,9 +1,6 @@
 package com.coblan.hiring.impl;
 
-import com.coblan.hiring.domain.Hiring;
-import com.coblan.hiring.domain.HiringStatus;
-import com.coblan.hiring.domain.WorkHour;
-import com.coblan.hiring.domain.WorkHourType;
+import com.coblan.hiring.domain.*;
 import com.coblan.hiring.repository.HiringRepository;
 import com.coblan.hiring.usecase.CancelHiringUseCase;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +28,12 @@ public class CancelHiringUseCaseImpl implements CancelHiringUseCase {
         hiring.setCancellationReason(cancellationReason);
         hiring.setCancellationdate(LocalDate.now());
 
-        // Anular las horas futuras
         for (WorkHour workHour : hiring.getWorkHours()) {
-            if (workHour.getDate().isAfter(LocalDate.now())) {
-                workHour.setType(WorkHourType.  CANCELLED);
+            if (workHour.getStatus().equals(WorkHourStatus.PENDING)) {
+                workHour.setStatus(WorkHourStatus.CANCELLED);
             }
         }
+
 
         hiringRepository.save(hiring);
     }

@@ -38,10 +38,7 @@ public class ConfirmWorkHourUseCaseImpl implements ConfirmWorkHourUseCase {
             workHour.setEmployee(newEmployee);
         }
 
-        // Actualizar fecha y hora real de ejecución
-        if (request.newDate() != null) {
-            workHour.setDate(request.newDate());
-        }
+
 
         if (request.newHour() != null) {
             workHour.setHour(request.newHour());
@@ -54,8 +51,8 @@ public class ConfirmWorkHourUseCaseImpl implements ConfirmWorkHourUseCase {
 
         // Confirmar hora
         workHour.setStatus(WorkHourStatus.CONFIRMED);
-        workHour.setConfirmedDateTime(LocalDateTime.now());
-
+        workHour.setConfirmedDate(request.newDate());
+        workHour.setConfirmedHour(request.newHour());
         workHourRepository.save(workHour);
     }
 }

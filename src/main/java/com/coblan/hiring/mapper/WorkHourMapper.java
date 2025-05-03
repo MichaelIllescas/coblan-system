@@ -11,12 +11,16 @@ public class WorkHourMapper {
                 hour.getId(),
                 hour.getDate(),
                 hour.getHour(),
+                hour.getConfirmedDate(),
+                hour.getConfirmedHour(),
                 hour.getDuration(),
                 hour.getType().name(),    // STANDARD / EXTRA
                 hour.getStatus().name(),  // PENDING / CONFIRMED / CANCELLED
                 hour.getEmployee().getFirstName() + " " +hour.getEmployee().getLastName(),
+                hour.getHiring().getCustomer().getFirstName() + " " +hour.getHiring().getCustomer().getLastName(),
                 hour.getEmployee().getId(),
-                hour.getNote()
+                hour.getNote(),
+                hour.getPrice()
         );
     }
 

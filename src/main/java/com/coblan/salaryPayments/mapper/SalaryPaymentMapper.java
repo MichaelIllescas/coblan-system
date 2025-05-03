@@ -34,6 +34,7 @@ public class SalaryPaymentMapper {
         String employeeFullName = payment.getEmployee().getFirstName() + " " + payment.getEmployee().getLastName();
         return new SalaryPaymentResponseDTO(
                 payment.getId(),
+                payment.getEmployee().getId(),
                 employeeFullName,
                 payment.getAmount(),
                 payment.getPaymentDate(),

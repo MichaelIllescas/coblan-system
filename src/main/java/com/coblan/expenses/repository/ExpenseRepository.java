@@ -21,4 +21,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE YEAR(e.date) = :year")
     Optional<BigDecimal> sumExpensesByYear(@Param("year") int year);
 
+    @Query("""
+    SELECT SUM(e.amount) FROM Expense e
+    WHERE YEAR(e.date) = :year AND MONTH(e.date) = :month
+            """)
+    Optional<BigDecimal> sumExpensesByYearAndMonth(@Param("year") int year, @Param("month") int month);
+
 }

@@ -11,6 +11,7 @@ public record HiringResponseDTO(
         String cancellationReason,
         Long customerId,
         String customerName,
+        String customerAddress,
         Long serviceId,
         String serviceName,
         Long employeeId,

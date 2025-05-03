@@ -18,5 +18,10 @@ public interface SalaryPaymentRepository extends JpaRepository<SalaryPayment, Lo
     @Query("SELECT SUM(s.amount) FROM SalaryPayment s WHERE YEAR(s.paymentDate) = :year")
     Optional<BigDecimal> sumSalariesByYear(@Param("year") int year);
 
+    @Query("""
+    SELECT SUM(s.amount) FROM SalaryPayment s
+    WHERE YEAR(s.paymentDate    ) = :year AND MONTH(s.paymentDate) = :month
+            """)
+    Optional<BigDecimal> sumSalariesByYearAndMonth(@Param("year") int year, @Param("month") int month);
 
 }

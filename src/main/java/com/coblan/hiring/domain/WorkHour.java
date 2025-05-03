@@ -48,7 +48,8 @@ public class WorkHour {
     @Column(nullable = false)
     private WorkHourType type;
 
-    private LocalDateTime confirmedDateTime;
+    private LocalDate confirmedDate;
+    private LocalTime confirmedHour;
 
     @Column(length = 500)
     private String note;

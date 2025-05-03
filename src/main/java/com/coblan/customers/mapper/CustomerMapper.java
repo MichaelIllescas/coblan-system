@@ -14,6 +14,7 @@ public class CustomerMapper {
                 .phone(dto.phone())
                 .email(dto.email())
                 .active(dto.active())
+                .address(dto.address())
                 .build();
     }
 
@@ -25,7 +26,9 @@ public class CustomerMapper {
                 customer.getDocumentNumber(),
                 customer.getPhone(),
                 customer.getEmail(),
+                customer.getAddress(),
                 customer.isActive()
+
         );
     }
 }

@@ -1,0 +1,44 @@
+# ========================
+# SISTEMA / IDEs
+# ========================
+.idea/
+.vscode/
+*.iml
+
+# ========================
+# SISTEMA OPERATIVO
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# MAVEN
+# ========================
+/target/
+dependency-reduced-pom.xml
+buildNumber.properties
+release.properties
+
+# ========================
+# LOGS Y ARCHIVOS TEMPORALES
+# ========================
+*.log
+*.tmp
+*.bak
+
+# ========================
+# ARCHIVOS DE COMPILACIÓN
+# ========================
+*.class
+
+# ========================
+# CONFIGURACIÓN SENSIBLE
+# ========================
+# Ignorar cualquier archivo application-[perfil] excepto dev
+src/main/resources/application-*.properties
+src/main/resources/application-*.yml
+!src/main/resources/application-dev.properties
+!src/main/resources/application-dev.yml
+
+
+

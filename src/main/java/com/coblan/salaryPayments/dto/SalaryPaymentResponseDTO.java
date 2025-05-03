@@ -7,6 +7,7 @@ import java.time.YearMonth;
 
 public record SalaryPaymentResponseDTO(
         Long id,
+        Long employeeId,
         String employeeFullName,
         BigDecimal amount,
         LocalDate paymentDate,

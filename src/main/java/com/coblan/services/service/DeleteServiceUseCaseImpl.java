@@ -1,8 +1,10 @@
 package com.coblan.services.service;
 
+import com.coblan.customers.exception.CustomerInUseException;
 import com.coblan.services.repository.ServiceRepository;
 import com.coblan.services.usecase.DeleteServiceUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -16,6 +18,13 @@ public class DeleteServiceUseCaseImpl implements DeleteServiceUseCase {
         if (!serviceRepository.existsById(id)) {
             throw new RuntimeException("Servicio no encontrado");
         }
-        serviceRepository.deleteById(id);
+
+        try {
+            serviceRepository.deleteById(id);;
+        } catch (DataIntegrityViolationException ex) {
+            throw new RuntimeException("No se puede eliminar el servicio porque está asociado a otros registros.");
+        }
+
+
     }
 }
