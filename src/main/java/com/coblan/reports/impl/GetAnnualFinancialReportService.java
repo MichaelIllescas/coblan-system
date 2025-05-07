@@ -32,7 +32,7 @@ public class GetAnnualFinancialReportService implements GetAnnualFinancialReport
 
         for (int month = 1; month <= 12; month++) {
             // Ingresos
-            BigDecimal activeIncome = hiringRepository.findActiveHiringsByYearAndMonth(year, month).stream()
+            BigDecimal activeIncome = hiringRepository.findActiveHiringsByMonthAndYear( month,year).stream()
                     .map(h -> BigDecimal.valueOf(h.getServicePriceAtHiring()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -26,24 +27,20 @@ public class GetMonthlyFinancialReportService implements GetMonthlyFinancialRepo
     private  final HiringRepository hiringRepository;
 
     @Override
-    public FinancialReportDTO execute(int month, int year) {
+    public FinancialReportDTO execute(int year, int month) {
 
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.plusMonths(1);
         // 1. Buscar contrataciones activas
-        List<Hiring> activeHirings = hiringRepository.findActiveHiringsByMonthAndYear(month, year);
+        List<Hiring> hiringsOfMonth = hiringRepository.findByStartDateBetween(startDate, endDate);
 
-        BigDecimal activeIncome = activeHirings.stream()
+        BigDecimal activeIncome = hiringsOfMonth.stream()
                 .map(hiring -> BigDecimal.valueOf(hiring.getServicePriceAtHiring()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // 2. Buscar horas confirmadas de contrataciones canceladas
-        List<WorkHour> confirmedCancelledHours = workHourRepository.findConfirmedHoursOfCancelledHiringsByMonthAndYear(month, year);
 
-        BigDecimal cancelledIncome = confirmedCancelledHours.stream()
-                .map(this::calculateIncomePerHour)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // 3. Sumar ambos ingresos
-        BigDecimal totalIncome = activeIncome.add(cancelledIncome);
+        // 3. ingresos totales
+        BigDecimal totalIncome = activeIncome;
 
         // 4. Gastos
         BigDecimal totalExpenses = expenseRepository.sumExpensesByMonthAndYear(month, year)

@@ -6,6 +6,7 @@ import com.coblan.hiring.usecase.CancelHiringUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
@@ -28,13 +29,21 @@ public class CancelHiringUseCaseImpl implements CancelHiringUseCase {
         hiring.setCancellationReason(cancellationReason);
         hiring.setCancellationdate(LocalDate.now());
 
+        Double amountPerHoursConfirmed=0d;
+        for (WorkHour workHour : hiring.getWorkHours()) {
+            if (workHour.getStatus().equals(WorkHourStatus.CONFIRMED)) {
+                amountPerHoursConfirmed += workHour.getPrice();
+            }
+        }
+
+
         for (WorkHour workHour : hiring.getWorkHours()) {
             if (workHour.getStatus().equals(WorkHourStatus.PENDING)) {
                 workHour.setStatus(WorkHourStatus.CANCELLED);
             }
         }
 
-
+        hiring.setServicePriceAtHiring(amountPerHoursConfirmed);
         hiringRepository.save(hiring);
     }
 }

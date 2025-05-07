@@ -28,7 +28,8 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
         }
 
         User newUser = userMapper.toUserCreate(request);
-
+        newUser.setEnabled(true);
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepository.save(newUser);
 
         return userMapper.toDTO(newUser);

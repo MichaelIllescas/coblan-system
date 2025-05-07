@@ -6,6 +6,7 @@ import com.coblan.hiring.dto.HiringRequestDTO;
 import com.coblan.hiring.dto.HiringResponseDTO;
 import com.coblan.hiring.dto.WorkHourResponseDTO;
 import com.coblan.hiring.usecase.*;
+import com.coblan.reports.dto.HiringReportDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +34,7 @@ public class HiringController {
     private final CancelHiringUseCase cancelHiringUseCase;
     private final GetWorkHoursByHiringUseCase getWorkHoursByHiringUseCase;
     private final GetHiringByIdUseCase getHiringByIdUseCase;
-
+    private final GetMonthlyHiringsListUseCase getMonthlyHiringsListUseCase;
 
 
     @PostMapping
@@ -124,4 +125,17 @@ public class HiringController {
         return ResponseEntity.ok(getHiringByIdUseCase.execute(hiringId));
     }
 
+
+        @GetMapping("/list/monthly")
+    @Operation(summary = "Obtener listado mensual de contrataciones")
+    @ApiResponse(responseCode = "200", description = "listado obtenido correctamente",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = HiringReportDTO.class)))
+    public ResponseEntity<List<HiringResponseDTO>> getMonthlyHiringsList(
+            @RequestParam int month,
+            @RequestParam int year
+    ) {
+        List<HiringResponseDTO> listHirings = getMonthlyHiringsListUseCase.execute(year,month);
+        return ResponseEntity.ok(listHirings);
+    }
 }

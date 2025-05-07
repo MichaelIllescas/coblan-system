@@ -38,7 +38,7 @@ public class ReportsController {
             @RequestParam int month,
             @RequestParam int year
     ) {
-        List<HiringReportDTO> report = getMonthlyHiringsReportUseCase.execute(month, year);
+        List<HiringReportDTO> report = getMonthlyHiringsReportUseCase.execute( year, month);
         return ResponseEntity.ok(report);
     }
 
@@ -51,7 +51,7 @@ public class ReportsController {
             @RequestParam int month,
             @RequestParam int year) {
 
-        FinancialReportDTO report = getMonthlyFinancialReportUseCase.execute(month, year);
+        FinancialReportDTO report = getMonthlyFinancialReportUseCase.execute( year, month);
         return ResponseEntity.ok(report);
     }
 
