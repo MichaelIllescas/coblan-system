@@ -1,6 +1,7 @@
 package com.coblan.users.controller;
 
 import com.coblan.config.exception.ErrorResponseDTO;
+import com.coblan.users.dto.ChangePasswordRequest;
 import com.coblan.users.dto.CreateUserRequest;
 import com.coblan.users.dto.UserDTO;
 import com.coblan.users.usecase.*;
@@ -33,6 +34,7 @@ public class UserController {
     private final DeleteUserUseCase deleteUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final ToggleStatusUserCase toggleStatusUserUseCase;
+    private final ChangePasswordUseCase changePasswordUseCase;
 
     @Operation(summary = "Obtener todos los usuarios")
     @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida correctamente")
@@ -118,4 +120,27 @@ public class UserController {
         toggleStatusUserUseCase.execute(id);
         return ResponseEntity.ok(Map.of("message", "El estado ha sido cambiado correctamente"));
     }
+
+
+
+    @Operation(summary = "Cambiar la contraseña del usuario autenticado")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Contraseña cambiada correctamente"),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/change-password")
+    public ResponseEntity<Map<String, String>> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            @Parameter(hidden = true) @RequestAttribute("userId") Long userId
+    ) {
+        changePasswordUseCase.execute(userId, request);
+        return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.coblan.auth.security;
 
+import com.coblan.users.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -87,18 +88,24 @@ public class JwtService {
      * @return el token JWT generado.
      */
     public String generateToken(Map<String, Object> claimsAdd, UserDetails userDetails) {
+        // ⚠️ Este cast asume que usás una clase que extiende de UserDetails con getId()
+        Long userId = ((User) userDetails).getId();
+
+        claimsAdd.put("userId", userId);
+
+        // También agregás el rol si lo necesitás en el token
         claimsAdd.put("role", userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElse(null));
 
         return Jwts.builder()
-                .setClaims(claimsAdd)  // Asigna los datos adicionales al token.
-                .setSubject(userDetails.getUsername())  // Establece el nombre de usuario como sujeto del token.
-                .setIssuedAt(new Date(System.currentTimeMillis()))  // Establece la fecha de emisión.
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))  // Establece la fecha de expiración (1 hora).
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)  // Firma el token con la clave secreta y el algoritmo HS256.
-                .compact();  // Genera el token JWT.
+                .setClaims(claimsAdd)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hora
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     /**
@@ -136,5 +143,16 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);  // Decodifica la clave secreta desde base64.
         return Keys.hmacShaKeyFor(keyBytes);  // Crea la clave de firma con el algoritmo HMAC.
+    }
+
+    /**
+     * obtiene el id del usuario del token.
+     *
+     * @return el id del usuario.
+     */
+
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("userId", Long.class);
     }
 }
