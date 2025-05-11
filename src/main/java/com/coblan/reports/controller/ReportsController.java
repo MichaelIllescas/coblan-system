@@ -1,8 +1,10 @@
 package com.coblan.reports.controller;
 
 import com.coblan.reports.dto.AnnualProfitResponseDTO;
+import com.coblan.reports.dto.DashboardStatsDTO;
 import com.coblan.reports.dto.FinancialReportDTO;
 import com.coblan.reports.dto.HiringReportDTO;
+import com.coblan.reports.usecase.DashboardService;
 import com.coblan.reports.usecase.GetAnnualFinancialReportUseCase;
 import com.coblan.reports.usecase.GetMonthlyFinancialReportUseCase;
 import com.coblan.reports.usecase.GetMonthlyHiringsReportUseCase;
@@ -27,6 +29,7 @@ public class ReportsController {
     private final GetMonthlyHiringsReportUseCase getMonthlyHiringsReportUseCase;
     private final GetMonthlyFinancialReportUseCase getMonthlyFinancialReportUseCase;
     private final GetAnnualFinancialReportUseCase getAnnualFinancialReportUseCase;
+    private final DashboardService dashboardService;
 
 
     @GetMapping("/hirings")
@@ -63,4 +66,13 @@ public class ReportsController {
         AnnualProfitResponseDTO report = getAnnualFinancialReportUseCase.execute(year);
         return ResponseEntity.ok(report);
     }
+
+
+    @GetMapping("/dashboard/stats")
+    @Operation(summary = "Genera el reporte de cantidad de empleados, de clientes, de contrataciones, y de servicios ")
+    public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
+        return ResponseEntity.ok(dashboardService.getStats());
+    }
+
+
 }

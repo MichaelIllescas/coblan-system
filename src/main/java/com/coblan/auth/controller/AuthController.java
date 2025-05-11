@@ -2,6 +2,8 @@ package com.coblan.auth.controller;
 
 import com.coblan.auth.dto.AuthenticationRequest;
 import com.coblan.auth.dto.AuthenticationResponse;
+import com.coblan.auth.dto.EmailDTO;
+import com.coblan.auth.dto.ResetPasswordDTO;
 import com.coblan.auth.exceptions.DisabledUserException;
 import com.coblan.auth.exceptions.InvalidCredentialsException;
 import com.coblan.auth.security.JwtService;
@@ -110,15 +112,22 @@ public class AuthController {
 
         try {
             UserDTO user = getAuthenticatedUserUseCase.execute(request);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("username", user.getEmail());
-            response.put("roles", List.of(user.getRole()));
-            response.put("name", user.getFirstName());
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Sesión inválida"));
         }
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody EmailDTO request) {
+        authenticationService.sendPasswordResetToken(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDTO request) {
+        authenticationService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }
