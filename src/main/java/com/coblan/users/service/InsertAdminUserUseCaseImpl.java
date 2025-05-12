@@ -30,7 +30,7 @@ public class InsertAdminUserUseCaseImpl implements InsertAdminUserUseCase {
                     .phone("0000000000")
                     .address("Sin direccion")
                     .email("admin@admin.com")
-                    .password(passwordEncoder.encode("admin123"))
+                    .password(passwordEncoder.encode("admin.123"))
                     .role(Role.ADMIN)
                     .enabled(true)
                     .build();

@@ -18,13 +18,16 @@ public class UpdateCompanyService implements UpdateCompanyUseCase {
     private final CompanyMapper companyMapper;
 
     @Override
-    public CompanyResponseDTO execute(Long userId, CompanyRequestDTO dto) {
-        Company company = companyRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("La empresa asociada al usuario no fue encontrada"));
+    public CompanyResponseDTO execute(CompanyRequestDTO dto) {
+        Company company = companyRepository.findFirstByOrderByIdAsc()
+                .orElseThrow(() -> new EntityNotFoundException("No hay una empresa registrada para actualizar"));
 
         companyMapper.updateEntity(company, dto);
         Company updated = companyRepository.save(company);
 
         return companyMapper.toResponseDTO(updated);
     }
+
+
+
 }

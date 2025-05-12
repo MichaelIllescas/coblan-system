@@ -29,42 +29,44 @@ public class CompanyController {
     private final GetCompanyUseCase getCompanyUseCase;
 
     @PostMapping
-    @Operation(summary = "Registrar empresa", description = "Registra una nueva empresa para el usuario autenticado")
+    @Operation(
+            summary = "Registrar empresa",
+            description = "Registra la empresa única del sistema. Solo puede existir una empresa registrada."
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Empresa registrada correctamente"),
-            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-            @ApiResponse(responseCode = "409", description = "El usuario ya tiene una empresa registrada")
+            @ApiResponse(responseCode = "400", description = "Datos inválidos en el cuerpo de la solicitud"),
+            @ApiResponse(responseCode = "409", description = "Ya existe una empresa registrada en el sistema")
     })
     public ResponseEntity<CompanyResponseDTO> registerCompany(
-            @RequestBody @Valid CompanyRequestDTO dto,
-            @RequestAttribute("userId") Long userId
+            @RequestBody @Valid CompanyRequestDTO dto
     ) {
-        CompanyResponseDTO response = registerCompanyUseCase.execute(userId, dto);
+        CompanyResponseDTO response = registerCompanyUseCase.execute(dto);
         return ResponseEntity.ok(response);
     }
 
+
     @PutMapping
-    @Operation(summary = "Actualizar empresa", description = "Actualiza los datos de la empresa del usuario autenticado")
+    @Operation(summary = "Actualizar empresa", description = "Actualiza los datos de la empresa registrada en el sistema")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Empresa actualizada correctamente"),
             @ApiResponse(responseCode = "404", description = "Empresa no encontrada")
     })
     public ResponseEntity<CompanyResponseDTO> updateCompany(
-            @RequestBody @Valid CompanyRequestDTO   dto,
-            @RequestAttribute("userId") Long userId
+            @RequestBody @Valid CompanyRequestDTO   dto
     ) {
-        CompanyResponseDTO response = updateCompanyUseCase.execute(userId, dto);
+        CompanyResponseDTO response = updateCompanyUseCase.execute(dto);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    @Operation(summary = "Obtener empresa", description = "Obtiene los datos de la empresa del usuario autenticado")
+    @Operation(summary = "Obtener empresa", description = "Obtiene los datos de la empresa registrada en sistema")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Datos de la empresa obtenidos correctamente"),
             @ApiResponse(responseCode = "404", description = "Empresa no encontrada")
     })
-    public ResponseEntity<CompanyResponseDTO> getCompany(@RequestAttribute("userId") Long userId) {
-        CompanyResponseDTO response = getCompanyUseCase.execute(userId);
+    public ResponseEntity<CompanyResponseDTO> getCompany() {
+        CompanyResponseDTO response = getCompanyUseCase.execute();
         return ResponseEntity.ok(response);
     }
 }

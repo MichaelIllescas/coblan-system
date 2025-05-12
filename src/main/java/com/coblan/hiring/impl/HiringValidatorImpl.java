@@ -36,7 +36,7 @@ public class HiringValidatorImpl implements HiringValidator {
 
         if (!conflicts.isEmpty()) {
             throw new IllegalStateException("El empleado ya tiene asignada una contratación en los siguientes días y horarios: "
-                    + String.join(", ", conflicts));
+                    + String.join(", ", conflicts) );
         }
     }
 }

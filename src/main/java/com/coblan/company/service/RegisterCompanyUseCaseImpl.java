@@ -17,20 +17,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RegisterCompanyUseCaseImpl implements RegisterCompanyUseCase {
 
-    private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
 
     @Override
-    public CompanyResponseDTO execute(Long userId, CompanyRequestDTO dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
-
-        if (companyRepository.existsByUserId(userId)) {
-            throw new EntityExistsException("El usuario ya tiene registrada una empresa");
+    public CompanyResponseDTO execute(CompanyRequestDTO dto) {
+        if (companyRepository.count() > 0) {
+            throw new EntityExistsException("Ya existe una empresa registrada en el sistema");
         }
 
-        Company company = companyMapper.toEntity(dto, user);
+        Company company = companyMapper.toEntity(dto);
         Company saved = companyRepository.save(company);
         return companyMapper.toResponseDTO(saved);
     }

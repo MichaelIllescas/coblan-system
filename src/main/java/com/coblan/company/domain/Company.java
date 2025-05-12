@@ -1,6 +1,5 @@
 package com.coblan.company.domain;
 
-import com.coblan.users.domain.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -19,10 +18,6 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
-
     @NotBlank(message = "La razón social es obligatoria")
     @Size(max = 100, message = "La razón social no debe superar los 100 caracteres")
     @Column(name = "business_name", nullable = false)
@@ -37,7 +32,6 @@ public class Company {
     @Column(name = "iva_condition", nullable = false, length = 30)
     @NotNull(message = "La condición frente al IVA es obligatoria")
     private IvaCondition ivaCondition;
-
 
     @NotBlank(message = "El domicilio fiscal es obligatorio")
     @Size(max = 200, message = "El domicilio fiscal no debe superar los 200 caracteres")
@@ -58,6 +52,5 @@ public class Company {
     @Pattern(regexp = "\\d{10,15}", message = "El teléfono debe tener entre 10 y 15 dígitos numéricos")
     @Column(name = "phone", nullable = false)
     private String phone;
-
 
 }

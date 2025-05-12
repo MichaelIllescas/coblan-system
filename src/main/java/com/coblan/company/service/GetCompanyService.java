@@ -18,9 +18,10 @@ public class GetCompanyService implements GetCompanyUseCase {
     private final CompanyMapper companyMapper;
 
     @Override
-    public CompanyResponseDTO execute(Long userId) {
-        Company company = companyRepository.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("La empresa del usuario no fue encontrada"));
+    public CompanyResponseDTO execute() {
+        Company company = companyRepository.findAll().stream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("No hay una empresa registrada en el sistema"));
 
         return companyMapper.toResponseDTO(company);
     }

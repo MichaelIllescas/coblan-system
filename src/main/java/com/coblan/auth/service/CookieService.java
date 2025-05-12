@@ -33,7 +33,7 @@ public class CookieService {
     public ResponseCookie createAuthCookie(String jwt) {
         return ResponseCookie.from("authToken", jwt)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(3600)

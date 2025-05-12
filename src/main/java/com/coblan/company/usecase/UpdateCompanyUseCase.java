@@ -5,5 +5,5 @@ import com.coblan.company.dto.CompanyRequestDTO;
 import com.coblan.company.dto.CompanyResponseDTO;
 
 public interface UpdateCompanyUseCase {
-    CompanyResponseDTO execute(Long userId, CompanyRequestDTO dto);
+    CompanyResponseDTO execute(CompanyRequestDTO dto);
 }

@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CompanyMapper {
 
-    public Company toEntity(CompanyRequestDTO dto, User user) {
+    public Company toEntity(CompanyRequestDTO dto) {
         Company company = new Company();
-        company.setUser(user);
         company.setBusinessName(dto.businessName());
         company.setCuit(dto.cuit());
         company.setIvaCondition(dto.ivaCondition());
