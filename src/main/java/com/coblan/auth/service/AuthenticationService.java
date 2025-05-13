@@ -7,20 +7,26 @@ package com.coblan.auth.service;
 
 import com.coblan.auth.dto.AuthenticationRequest;
 import com.coblan.auth.dto.AuthenticationResponse;
+import com.coblan.auth.entity.PasswordResetToken;
 import com.coblan.auth.exceptions.DisabledUserException;
 import com.coblan.auth.exceptions.InvalidCredentialsException;
+import com.coblan.auth.repository.PasswordResetTokenRepository;
 import com.coblan.auth.security.JwtService;
 import com.coblan.users.domain.User;
 import com.coblan.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,11 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final EmailService emailService;
+
+    @Value("${app.frontend.reset-password-url}")
+    private String resetPasswordBaseUrl;
 
     /**
      * Realiza el proceso de inicio de sesión validando credenciales
@@ -76,4 +87,49 @@ public class AuthenticationService {
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public void sendPasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        //  Buscar token existente
+        tokenRepository.findByUser(user).ifPresent(existingToken -> {
+            if (existingToken.getExpirationDate().isBefore(LocalDateTime.now())) {
+                tokenRepository.delete(existingToken); // está vencido, lo borro
+            } else {
+                throw new IllegalStateException("Ya hay un token activo para este usuario.");
+            }
+        });
+
+        //  Generar y guardar nuevo token
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpirationDate(LocalDateTime.now().plusMinutes(30));
+
+        tokenRepository.save(resetToken);
+
+        emailService.send(
+                user.getEmail(),
+                "Recuperación de contraseña",
+                "Haz clic en el siguiente enlace para restablecer tu contraseña:\n" +
+                        resetPasswordBaseUrl + "?token=" + token
+        );
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken resetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token inválido"));
+
+        if (resetToken.getExpirationDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token expirado");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        tokenRepository.delete(resetToken); // Invalida el token
+    }
+
 }

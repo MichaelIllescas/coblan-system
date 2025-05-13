@@ -1,0 +1,8 @@
+package com.coblan.services.usecase;
+
+import com.coblan.services.dto.ServiceRequestDTO;
+import com.coblan.services.dto.ServiceResponseDTO;
+
+public interface CreateServiceUseCase {
+    ServiceResponseDTO execute(ServiceRequestDTO dto);
+}

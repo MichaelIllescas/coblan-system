@@ -1,6 +1,8 @@
 package com.coblan.users.repository;
 
 import com.coblan.users.domain.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +16,7 @@ import java.util.Optional;
  * Los métodos permiten realizar operaciones como guardar, buscar, actualizar y eliminar usuarios.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface    UserRepository extends JpaRepository<User, Long> {
 
     /**
      * Busca un usuario en la base de datos por su correo electrónico.
@@ -33,4 +35,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      *         o vacío si no se encuentra.
      */
     Optional<User> findByDocumentNumber(String documentNumber);
+
+    boolean existsByEmail(@Email(message = "Debe ingresar un email válido") @NotBlank(message = "El email es obligatorio") String email);
 }

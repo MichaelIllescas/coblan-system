@@ -55,6 +55,9 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
                                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                         // Establece la autenticación en el contexto de seguridad
                         SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                        Long userId = jwtService.extractUserId(jwtToken);
+                        request.setAttribute("userId", userId);
                     }
                 }
             }

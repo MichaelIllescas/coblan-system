@@ -1,46 +1,45 @@
 package com.coblan.auth.controller;
 
-
-
-
 import com.coblan.auth.dto.AuthenticationRequest;
 import com.coblan.auth.dto.AuthenticationResponse;
+import com.coblan.auth.dto.EmailDTO;
+import com.coblan.auth.dto.ResetPasswordDTO;
 import com.coblan.auth.exceptions.DisabledUserException;
 import com.coblan.auth.exceptions.InvalidCredentialsException;
 import com.coblan.auth.security.JwtService;
 import com.coblan.auth.service.AuthenticationService;
 import com.coblan.auth.service.CookieService;
+import com.coblan.config.exception.ErrorResponseDTO;
 import com.coblan.users.dto.UserDTO;
 import com.coblan.users.service.UserMapper;
 import com.coblan.users.usecase.GetAuthenticatedUserUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * Controlador REST encargado de manejar la autenticación de usuarios,
- * incluyendo inicio y cierre de sesión, validación de sesión activa y
- * funcionalidades para recuperación de contraseña.
- */
-
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autenticación", description = "Operaciones relacionadas con la autenticación en el sistema")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -51,14 +50,17 @@ public class AuthController {
     private final GetAuthenticatedUserUseCase getAuthenticatedUserUseCase;
     private final UserMapper userMapper;
 
-    /**
-     * Endpoint para iniciar sesión. Autentica al usuario, genera un JWT
-     * y lo almacena en una cookie.
-     *
-     * @param request  credenciales de autenticación
-     * @param response objeto HttpServletResponse donde se setea la cookie
-     * @return UserDTO del usuario autenticado o error en caso de falla
-     */
+    @Operation(summary = "Iniciar sesión")
+    @ApiResponse(responseCode = "200", description = "Autenticación exitosa")
+    @ApiResponse(responseCode = "401", description = "Credenciales inválidas",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "403", description = "Usuario deshabilitado",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     @PostMapping("/login")
     public ResponseEntity<?> login(
             @RequestBody AuthenticationRequest request,
@@ -79,12 +81,8 @@ public class AuthController {
         }
     }
 
-    /**
-     * Endpoint para cerrar sesión. Elimina la cookie con el JWT.
-     *
-     * @param response objeto HttpServletResponse donde se elimina la cookie
-     * @return mensaje de confirmación
-     */
+    @Operation(summary = "Cerrar sesión")
+    @ApiResponse(responseCode = "200", description = "Sesión cerrada correctamente")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("authToken", null);
@@ -93,60 +91,43 @@ public class AuthController {
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
-        return ResponseEntity.ok("Logout exitoso");
+        return ResponseEntity.ok(Map.of("message", "Logout exitoso"));
     }
 
-    /**
-     * Endpoint para obtener información de la sesión actual.
-     *
-     * @param jwtToken token JWT extraído de la cookie
-     * @param request  petición HTTP que contiene la cookie
-     * @return información del usuario autenticado o mensaje de error
-     */
-    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Obtener información de la sesión actual")
+    @ApiResponse(responseCode = "200", description = "Sesión activa")
+    @ApiResponse(responseCode = "401", description = "No hay sesión activa o token inválido",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     @GetMapping("/me")
-    public ResponseEntity<?> getSession(@CookieValue(name = "authToken", required = false) String jwtToken,
-                                        HttpServletRequest request) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getSession(
+            @Parameter(description = "Token JWT en cookie")
+            @CookieValue(name = "authToken", required = false) String jwtToken,
+            HttpServletRequest request) {
+
         if (jwtToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No hay sesión activa");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "No hay sesión activa"));
         }
 
         try {
             UserDTO user = getAuthenticatedUserUseCase.execute(request);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("username", user.getEmail());
-            response.put("roles", List.of(user.getRole()));  // Asumiendo un solo rol
-            response.put("name", user.getFirstName());
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sesión inválida");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Sesión inválida"));
         }
     }
 
 
-    /**
-     * Endpoint para solicitar el token de recuperación de contraseña.
-     *
-     * @param request objeto con el email del usuario
-     * @return mensaje de confirmación
-
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody EmailRequest request) {
-        userService.sendResetToken(request.getEmail());
-        return ResponseEntity.ok("Si el correo está registrado, se envió el enlace.");
+    public ResponseEntity<Void> forgotPassword(@RequestBody EmailDTO request) {
+        authenticationService.sendPasswordResetToken(request.getEmail());
+        return ResponseEntity.ok().build();
     }
-*/
-    /**
-     * Endpoint para restablecer la contraseña usando un token.
-     *
-     * @param request objeto con el token y la nueva contraseña
-     * @return mensaje de confirmación
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-        userService.resetPassword(request.getToken(), request.getNewPassword());
-        return ResponseEntity.ok("Contraseña actualizada con éxito.");
-    } */
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDTO request) {
+        authenticationService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
+    }
 }
