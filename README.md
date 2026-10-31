@@ -83,6 +83,10 @@ npm run dev
 
 El panel queda en `http://localhost:5173` y apunta a la API local.
 
+## Licencia
+
+Distribuido bajo licencia MIT. Ver [LICENSE](LICENSE).
+
 ## Autor
 
 Jonathan Illescas · [GitHub](https://github.com/MichaelIllescas)
