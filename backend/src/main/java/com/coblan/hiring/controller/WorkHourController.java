@@ -1,0 +1,91 @@
+package com.coblan.hiring.controller;
+
+import com.coblan.config.exception.ErrorResponseDTO;
+import com.coblan.hiring.dto.AddExtraWorkHourRequestDTO;
+import com.coblan.hiring.dto.ConfirmWorkHourRequestDTO;
+import com.coblan.hiring.dto.WorkHourResponseDTO;
+import com.coblan.hiring.usecase.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/work-hours")
+@RequiredArgsConstructor
+@Tag(name = "Horas de Trabajo", description = "Operaciones relacionadas con la horas laborables de los servicios contratados")
+
+public class WorkHourController {
+
+    private final GetPendingWorkHoursByMonthAndYearUseCase getPendingWorkHoursByMonthAndYearUseCase;
+    private final ConfirmWorkHourUseCase confirmWorkHourUseCase;
+    private final AddExtraWorkHourUseCase addExtraWorkHourUseCase;
+    private final GetWokedHoursByEmployeeIdAndMonthAndYear getWokedHoursByEmployeeIdAndMonthAndYear;
+    private final GetPendingWorkHoursByDateUseCase getPendingWorkHoursByDateUseCase;
+
+    @Operation(summary = "Confirmar una hora trabajada")
+    @ApiResponse(responseCode = "200", description = "Hora confirmada correctamente")
+    @PutMapping("/confirm")
+    public ResponseEntity<Void> confirmWorkHour(@RequestBody @Valid ConfirmWorkHourRequestDTO request) {
+        confirmWorkHourUseCase.execute(request);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping("/extra-hours")
+    @Operation(summary = "Agregar una hora extra a una contratación existente")
+    @ApiResponse(responseCode = "201", description = "Hora extra agregada exitosamente",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = WorkHourResponseDTO.class)))
+    @ApiResponse(responseCode = "400", description = "Datos inválidos o contratación/empleado no encontrado",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    public ResponseEntity<WorkHourResponseDTO> addExtraHour(
+            @Parameter(description = "Datos necesarios para registrar una hora extra")
+            @Valid @RequestBody AddExtraWorkHourRequestDTO requestDTO) {
+
+        WorkHourResponseDTO response = addExtraWorkHourUseCase.execute(requestDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/hours-worked/{employeeId}")
+    @Operation(summary = "Obtener las horas mensaules laborables asignadas a un empleado a partir de su id")
+
+    public ResponseEntity<List<WorkHourResponseDTO>> getHoursWordkedByEmployee(@PathVariable Long employeeId,
+                                                                              @RequestParam int month,
+                                                                              @RequestParam int year){
+    return ResponseEntity.ok(getWokedHoursByEmployeeIdAndMonthAndYear.execute( employeeId, month, year));
+
+
+    }
+
+
+    @GetMapping("/pending")
+    @Operation(summary = "Obtener horas pendientes por mes y año")
+    public ResponseEntity<List<WorkHourResponseDTO>> getPendingWorkHoursByMonthAndYear(
+            @RequestParam int month,
+            @RequestParam int year) {
+        return ResponseEntity.ok(getPendingWorkHoursByMonthAndYearUseCase.execute(month, year));
+    }
+
+
+
+    @GetMapping("/pending-by-date")
+    @Operation(summary = "Obtener horas pendientes de una fecha específica")
+    public ResponseEntity<List<WorkHourResponseDTO>> getPendingWorkHoursByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(getPendingWorkHoursByDateUseCase.execute(date));
+    }
+
+}
