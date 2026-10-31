@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Cambiá este valor según el entorno en que estés trabajando
-const isProduction = true;
+const isProduction = false;
 
 const apiBaseURL = isProduction
   ? 'https://app.coblan.org/'
